@@ -41,27 +41,3 @@ lib/
   axios.ts            # Axios instance with interceptors
   types.ts            # User TypeScript interface
 ```
-
-## Key Implementation Notes
-
-### Optimistic Updates
-Both update and delete are optimistic:
-- **Update**: state is changed immediately, API call happens in background; rolls back on failure
-- **Delete**: redirects to `/users` immediately, then calls `DELETE /users/:id`
-
-### Axios Interceptor
-Defined in `lib/axios.ts`:
-- **Request**: logs `METHOD /path` before each call
-- **Response**: logs status code + URL on success, error details on failure
-
-### Why Server + Client Components?
-- `/users` is a **Server Component** — data is fetched on the server for fast initial load
-- `/users/[id]` is a **Client Component** (`"use client"`) — needed for useState, interactivity, and optimistic mutations
-
-## Deploying to Vercel
-
-1. Push to a public GitHub repo
-2. Go to [vercel.com](https://vercel.com) → Import project
-3. Select your repo → Deploy (zero config needed)
-
-> Note: JSONPlaceholder does not persist data — PUT/DELETE calls succeed (return 200) but changes are not saved server-side. This is expected behavior.
