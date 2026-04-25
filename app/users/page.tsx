@@ -1,16 +1,31 @@
-import UserCard from "../components/UserCard";
+"use client";
+
+import { useEffect, useState } from "react";
 import { User } from "@/lib/types";
+import UserCard from "../components/UserCard";
+import api from "@/lib/axios";
 
-async function getUsers(): Promise<User[]> {
-  const res = await fetch("https://jsonplaceholder.typicode.com/users", {
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error("Failed to fetch users");
-  return res.json();
-}
+export default function UsersPage() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-export default async function UsersPage() {
-  const users = await getUsers();
+  useEffect(() => {
+    api
+      .get<User[]>("/users")
+      .then((res) => {
+        setUsers(res.data);
+      })
+      .catch(() => {
+        setError("Failed to fetch users");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <p style={{ padding: 20 }}>Loading...</p>;
+  if (error) return <p style={{ padding: 20 }}>{error}</p>;
 
   return (
     <div style={{ minHeight: "100vh", padding: "0 0 80px" }}>
@@ -20,60 +35,20 @@ export default async function UsersPage() {
           borderBottom: "1px solid var(--border)",
           padding: "28px 40px",
           display: "flex",
-          alignItems: "center",
           justifyContent: "space-between",
-          position: "sticky",
-          top: 0,
-          background: "rgba(10,10,15,0.85)",
-          backdropFilter: "blur(12px)",
-          zIndex: 10,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          
-          <span
-            style={{
-              fontFamily: "sans-serif",
-              fontWeight: 800,
-              fontSize: 20,
-              letterSpacing: "-0.03em",
-            }}
-          >
-            User-Data
-          </span>
-        </div>
-        <div
-          style={{
-            fontSize: 12,
-            color: "var(--text-muted)",
-            fontFamily: "DM Mono, monospace",
-          }}
-        >
+        <span style={{ fontWeight: 800, fontSize: 20 }}>UserData</span>
+
+        <div style={{ fontSize: 12 }}>
           {users.length} records
         </div>
       </header>
 
-      {/* Main content */}
+      {/* Main */}
       <main style={{ maxWidth: 900, margin: "0 auto", padding: "48px 24px" }}>
-        {/* Title block */}
-        <div className="animate-fade-up" style={{ marginBottom: 48 }}>
-          <p
-            style={{
-              color: "var(--accent)",
-              fontSize: 11,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              marginBottom: 8,
-            }}
-          >
-            HomePage
-          </p>
-          <h1 style={{ fontSize: 42, color: "var(--text-primary)" }}>
-            All Users
-          </h1>
-        </div>
+        <h1 style={{ fontSize: 42 }}>All Users</h1>
 
-        {/* Grid */}
         <div
           style={{
             display: "grid",
@@ -89,5 +64,3 @@ export default async function UsersPage() {
     </div>
   );
 }
-
-
